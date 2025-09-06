@@ -16,5 +16,6 @@ export const Zones = {
 
 export const Entities = {
   ZAPPER: "zapper",
-  SPRING: "spring"
+  SPRING: "spring",
+  MAGNET: "magnet",
 }

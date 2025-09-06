@@ -3,7 +3,7 @@ import { draw_rect, draw_circle } from './drawFns.js'
 import { GameStates } from "./enums.js"
 
 import { update as update_cannon } from './gamestates/cannon.js'
-import { spawn_slice, update as update_shoot } from './gamestates/shoot.js'
+import { despawn_slice, spawn_slice, update as update_shoot } from './gamestates/shoot.js'
 import { update as update_lose } from './gamestates/lose.js'
 
 
@@ -72,7 +72,7 @@ export const change_state = (new_state) => {
 			gs.latest_slice_seen = 0;
 
 			for (const slice_id of Object.keys(gs.slices)) {
-				delete gs.slices[slice_id]
+				despawn_slice(slice_id)
 			}
 
 			spawn_slice(1)
@@ -109,7 +109,7 @@ export const init = () => {
 	const canv = document.getElementById("main-canvas")
 	const screen = document.getElementById("game-screen")
 	const screen_rect = screen.getBoundingClientRect()
-	console.log(screen_rect.width)
+	console.log("Screen dims", { width: screen_rect.width, height: screen_rect.height })
 	canv.width = screen_rect.width
 	canv.height = screen_rect.height
 

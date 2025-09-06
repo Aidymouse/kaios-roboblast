@@ -142,5 +142,8 @@ export const spawn_slice = (slice_num) => {
 	gs.slices[slice_num] = new_slice
 }
 
-export const despawn_slice = () => {
+export const despawn_slice = (slice_id) => {
+	const gs = window.gamestate
+
+	delete gs.slices[slice_id]
 }

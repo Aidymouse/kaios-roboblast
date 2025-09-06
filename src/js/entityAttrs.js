@@ -1,3 +1,4 @@
+import { collisions_magnet, draw_magnet, spawn_magnet } from "./entities/magnet.js";
 import { draw_spring, spawn_spring, collisions_spring } from "./entities/spring.js";
 import { draw_zapper, spawn_zapper, collisions_zapper } from "./entities/zapper.js";
 
@@ -5,7 +6,7 @@ import { draw_zapper, spawn_zapper, collisions_zapper } from "./entities/zapper.
 export const NORMAL_ENTITIES = []
 export const SKY_ENTITIES = []
 export const SPACE_ENTITIES = []
-export const ALL_TERRAIN_ENTITIES = ['zapper', 'spring']
+export const ALL_TERRAIN_ENTITIES = ['zapper', 'spring', 'magnet']
 
 export const EntityAttrs = {
   zapper: {
@@ -21,6 +22,13 @@ export const EntityAttrs = {
 
     drawer: draw_spring,
     collision_handler: collisions_spring
+  },
+
+  magnet: {
+    spawner: spawn_magnet,
+    spawn_chance: 3,
+    drawer: draw_magnet,
+    collision_handler: collisions_magnet
   }
 }
 
