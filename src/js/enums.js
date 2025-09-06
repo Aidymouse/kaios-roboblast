@@ -7,3 +7,14 @@ export const GameStates = {
   SHOOT: "SHOOT",
   LOSE: "LOSE",
 }
+
+export const Zones = {
+  NORMAL: "normal",
+  SKY: "sky",
+  SPACE: "space",
+}
+
+export const Entities = {
+  ZAPPER: "zapper",
+  SPRING: "spring"
+}
