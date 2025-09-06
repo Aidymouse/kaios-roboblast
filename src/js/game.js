@@ -1,9 +1,14 @@
 import { world_to_screen } from "./helperFns.js"
 import { draw_rect, draw_circle } from './drawFns.js'
+import { GameStates } from "./enums.js"
+
 import { update as update_cannon } from './gamestates/cannon.js'
 import { spawn_slice, update as update_shoot } from './gamestates/shoot.js'
 import { update as update_lose } from './gamestates/lose.js'
-import { GameStates } from "./enums.js"
+
+
+import { draw_robo } from "./entities/robo.js"
+import { draw_zapper } from "./entities/zapper.js"
 
 const Vec2 = Vector
 
@@ -12,7 +17,7 @@ const display_debug = true;
 /** Oh yeah. We're doin this. */
 window.gamestate = {
   screen_width: -1, // Updated on load
-  screen_height: -1,
+  screen_height: -1, // Updated on load
 
   gravity: 600,
 
@@ -43,7 +48,7 @@ window.gamestate = {
   },
 
   slices: {
-  }
+	}
 };
 
 // In the game world, 0, 0 is the bottom left corner and up goes higher.
@@ -57,11 +62,21 @@ export const change_state = (new_state) => {
 
   switch (new_state) {
     case GameStates.CANNON: {
+			// Reset Robo State
       gs.distance = 0;
       gs.robo.pos.x = 0;
       gs.robo.pos.y = -gs.robo.radius * 3;
+      gs.robo.invincibility_timer = 0
 
       gs.latest_slice_seen = 0;
+
+			for (const slice_id of Object.keys(gs.slices)) {
+				delete gs.slices[slice_id]
+			}
+
+			spawn_slice(1)
+			spawn_slice(2)
+			spawn_slice(3)
 
       return;
     }
@@ -73,7 +88,12 @@ export const change_state = (new_state) => {
     }
 
     case GameStates.LOSE: {
-      return;
+			setTimeout(() => {
+				gs.camera.pos.x = gs.screen_width / 2;
+				gs.camera.pos.y = gs.screen_height / 2;
+				change_state(GameStates.CANNON);
+			}, 750)
+      //return;
     }
   }
 }
@@ -193,10 +213,7 @@ export const draw = (dt) => {
 
 
   // Robo
-  ctx.fillStyle = "green";
-  //ctx.fillRect(gs.robo.pos.x, gs.robo.pos.y, 64, 64);
-  //draw_rect(gs.robo.pos.x, gs.robo.pos.y, 64, 64, 0, 32, 32, ctx);
-  draw_circle(gs.robo.pos.x, gs.robo.pos.y, gs.robo.radius, 0, 0, 0, ctx);
+	draw_robo(gs.robo, ctx);
 
   // Cannon
   ctx.fillStyle = "grey";
@@ -205,15 +222,9 @@ export const draw = (dt) => {
 
   // Obstacles
   for (const [slice_idx, slice] of Object.entries(gs.slices)) {
-
+    
     // Zappers
-    for (const zapper of slice.zappers) {
-
-      ctx.fillStyle = "lightblue";
-      draw_rect(zapper.pos.x, zapper.pos.y, zapper.width, zapper.height, 0, 15, 25, ctx);
-
-
-    }
+    for (const zapper of slice.zappers) { draw_zapper(zapper, ctx); }
   }
 
 

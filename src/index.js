@@ -7,6 +7,8 @@ window.keysDown = {
 }
 
 document.addEventListener("keydown", event => {
+	const gs = window.gamestate;
+
   handle_key(event.key);
 
   switch (event.key) {
@@ -26,6 +28,10 @@ document.addEventListener("keydown", event => {
     }
     // case "SoftRight":
     //   return Softkey.SoftRight(event);
+    case "s": {
+			console.log(gs.slices)
+			return;
+		}
     default:
       return;
   }

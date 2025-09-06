@@ -3,6 +3,7 @@ import { change_state } from "../game.js";
 import { rand } from "../helperFns.js";
 import { SLICE_WIDTH } from "../enums.js";
 import { rect_rect } from "../collisions.js";
+import { spawn_zapper } from "../entities/zapper.js"
 
 
 const Vec2 = Vector
@@ -26,33 +27,39 @@ export const update = (dt) => {
 
   // Bounce TODO: make this collision system
   if (gs.robo.pos.y - gs.robo.radius <= 30 && gs.robo.vel.y < 0) {
+		gs.robo.pos.y = 30 + gs.robo.radius
+		gs.robo.vel.x = gs.robo.vel.x - 200; // Decelerate
+
     gs.robo.vel.y = -(gs.robo.vel.y * 0.6)
-    if (gs.robo.vel.y < 120) {
+		if (gs.robo.vel.y < 100) gs.robo.vel.y = 0
+    //if (gs.robo.vel.y < 120) {
+    if (gs.robo.vel.x <= 0) {
       console.log("Stop")
 
       change_state(GameStates.LOSE)
     }
-  }
+  } 
 
+	if (gs.robo.vel.x < 0) { gs.robo.vel.x = 0 }
 
   // Handle collisions
-
   gs.robo.invincibility_timer -= dt;
-  //console.log(gs.robo.invincibility_timer)
 
   if (gs.robo.invincibility_timer <= 0) {
-    collision_block: {
-      console.log("===")
-      const robo_rect = { x: gs.robo.pos.x - (gs.robo.radius * 1.5) / 2, y: gs.robo.pos.y + (gs.robo.radius * 1.5) / 2, w: gs.robo.radius * 1.5, h: gs.robo.radius * 1.5 }
+    collision_block: { // Needed this or break wasn't working idk why
+      const robo_rect = { 
+				x: gs.robo.pos.x - (gs.robo.radius * 1.5) / 2,
+ 				y: gs.robo.pos.y + (gs.robo.radius * 1.5) / 2,
+ 				w: gs.robo.radius * 1.5,
+ 				h: gs.robo.radius * 1.5 
+			}
 
       for (const [slice_idx, slice] of Object.entries(gs.slices)) {
 
         for (const zapper of slice.zappers) {
 
           if (rect_rect(robo_rect.x, robo_rect.y, robo_rect.w, robo_rect.h, zapper.pos.x, zapper.pos.y, zapper.width, zapper.height)) {
-            //change_state(GameStates.LOSE)
-            console.log("Hit")
-            gs.robo.vel.x -= 100;
+            gs.robo.vel.x *= 0.9;
             gs.robo.invincibility_timer = 2;
             break collision_block;
           }
@@ -67,17 +74,26 @@ export const update = (dt) => {
   // Distance
   gs.distance = Math.floor(gs.robo.pos.x / 100);
 
-
   // Spawn new slices if required
   const inhabited_slice = (gs.robo.pos.x - (gs.robo.pos.x % SLICE_WIDTH)) / SLICE_WIDTH
-  if (inhabited_slice >= gs.latest_slice_seen - 3) {
-    spawn_slice(gs.latest_slice_seen + 1)
-    spawn_slice(gs.latest_slice_seen + 2)
-    spawn_slice(gs.latest_slice_seen + 3)
-    gs.latest_slice_seen += 3
-  }
+	for (let i=gs.latest_slice_seen; i<inhabited_slice+3; i++) {
+		if (!gs.slices[`${i}`] && i !== 0) {
+				spawn_slice(i)
+				gs.latest_slice_seen += 1
+		}
+	}
+
+	// Despawn old slices
+	for (const slice_id of Object.keys(gs.slices)) {
+		if (parseInt(slice_id) < inhabited_slice - 3) {
+			delete gs.slices[slice_id]
+		}
+	}
+
+	
 }
 
+// Template
 const BLANK_SLICE = {
   zappers: [],
 }
@@ -90,7 +106,7 @@ export const spawn_slice = (slice_num) => {
     return
   }
 
-  console.log("Spwaning slice")
+  console.log("Spwaning slice", slice_num)
   const new_slice = BLANK_SLICE
 
   const slice_x = slice_num * SLICE_WIDTH
@@ -100,11 +116,7 @@ export const spawn_slice = (slice_num) => {
   for (let i = 0; i < num_ents; i++) {
 
     // TODO: select type of thing randomly
-    new_slice.zappers.push({
-      pos: new Vec2(rand(slice_x, slice_x + SLICE_WIDTH), rand(30, 1500)),
-      width: 10,
-      height: 50,
-    })
+    new_slice.zappers.push(spawn_zapper(slice_x))
 
   }
 

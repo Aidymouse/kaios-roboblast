@@ -45,11 +45,13 @@ export const draw_circle = (world_x, world_y, radius, rotation, anchorX, anchorY
   //ctx.translate(-anchorX, -anchorY)
 
   ctx.translate(-anchorX, -anchorY)
+  ctx.beginPath();
   ctx.arc(x, y, radius, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 
   // Debug: draw anchor point
+	/*
   ctx.save();
   ctx.fillStyle = "red";
   ctx.beginPath();
@@ -57,4 +59,5 @@ export const draw_circle = (world_x, world_y, radius, rotation, anchorX, anchorY
   //ctx.closePath();
   ctx.fill();
   ctx.restore();
+	*/
 }
